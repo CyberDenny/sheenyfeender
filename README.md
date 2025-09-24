@@ -155,6 +155,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Ned** - [NedNet](https://nednet.pages.dev/tutorials/shiny-finder)
 
+## 📥 Download
+
+Get the latest version: [Download Shiny Finder](https://github.com/CyberDenny/shinyfinder/releases/download/latest/shinyfinder-1.0.1.jar)
+
 ## 🙏 Acknowledgments
 
 - **Cobblemon Team** for the amazing Pokemon mod

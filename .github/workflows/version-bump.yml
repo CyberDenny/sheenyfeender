@@ -31,7 +31,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         
-    - name: Auto bump version and create release
+    - name: Auto bump version and update latest release
       run: |
         # Read current version
         CURRENT_VERSION=$(grep "mod_version=" gradle.properties | cut -d'=' -f2)
@@ -78,7 +78,7 @@ jobs:
         chmod +x ./gradlew
         ./gradlew build
         
-        # Create and push tag
+        # Create and push tag (but we'll use "latest" for the release)
         git tag "v$NEW_VERSION"
         git push origin main
         git push origin "v$NEW_VERSION"
@@ -90,22 +90,20 @@ jobs:
         echo "Build artifacts:"
         ls -la build/libs/
         
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
+    - name: Create or Update Latest Release
+      uses: joutvhu/create-release@v1.0.1
       with:
-        tag_name: v${{ env.NEW_VERSION }}
-        name: Shiny Finder v${{ env.NEW_VERSION }}
-        files: build/libs/*.jar
-        generate_release_notes: true
+        tag_name: latest
+        release_name: Shiny Finder - Latest Version
         draft: false
         prerelease: false
         body: |
-          ## Changes in v${{ env.NEW_VERSION }}
+          ## Shiny Finder - Latest Version (v${{ env.NEW_VERSION }})
           
-          This release includes the latest changes to Shiny Finder.
+          This is the latest version of Shiny Finder. This release is automatically updated whenever new changes are pushed.
           
           ### Installation
-          1. Download the `shinyfinder-${{ env.NEW_VERSION }}.jar` file
+          1. Download the `shinyfinder-${{ env.NEW_VERSION }}.jar` file below
           2. Place it in your mods folder
           3. Make sure you have Fabric Loader, Fabric API, and Cobblemon installed
           4. Launch Minecraft and enjoy!
@@ -115,5 +113,14 @@ jobs:
           - Fabric Loader 0.16.14+
           - Fabric API
           - Cobblemon (for Pokemon detection)
+          
+          ### Features
+          - Automatically detects shiny Pokemon in your area
+          - Configurable scan radius and interval
+          - Sound and visual alerts
+          - In-game configuration GUI
+          - Auto-start when joining worlds
+        files: |
+          build/libs/*.jar
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
