@@ -1,0 +1,8 @@
+{
+  "key.shinyfinder.toggle": "Toggle Shiny Finder",
+  "key.shinyfinder.enable": "Enable Shiny Finder", 
+  "key.shinyfinder.disable": "Disable Shiny Finder",
+  "key.shinyfinder.config": "Open Configuration",
+  "category.shinyfinder.general": "Shiny Finder"
+}
+

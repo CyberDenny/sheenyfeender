@@ -1,0 +1,42 @@
+{
+	"schemaVersion": 1,
+	"id": "shinyfinder",
+	"version": "${version}",
+	"name": "Shiny Finder",
+	"description": "A mod that finds shiny Pokemon in the surrounding area and alerts you when one is discovered!",
+	"authors": [
+		"Ned"
+	],
+	"contact": {
+		"homepage": "https://nednet.pages.dev/tutorials/shiny-finder",
+		"sources": "https://nednet.pages.dev/tutorials/shiny-finder"
+	},
+	"license": "MIT",
+	"icon": "assets/shinyfinder/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.ned.shinyfinder.ShinyFinder"
+		],
+		"client": [
+			"com.ned.shinyfinder.ShinyFinderClient"
+		]
+	},
+	"mixins": [
+		"shinyfinder.mixins.json",
+		{
+			"config": "shinyfinder.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"cobblemon": "*",
+		"xaerominimap": "*"
+	}
+}
