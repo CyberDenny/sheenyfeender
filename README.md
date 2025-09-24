@@ -157,7 +157,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📥 Download
 
-Get the latest version: [Download Shiny Finder](https://github.com/CyberDenny/shinyfinder/releases/download/latest/shinyfinder-1.0.1.jar)
+Get the latest version from the [Releases page](https://github.com/CyberDenny/shinyfinder/releases/latest)
+
+*Note: Only the main JAR file is included in releases (sources JAR excluded for smaller download size)*
 
 ## 🙏 Acknowledgments
 
