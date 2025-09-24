@@ -157,7 +157,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📥 Download
 
-Get the latest version from the [Releases page](https://github.com/CyberDenny/shinyfinder/releases/latest)
+Get the latest version from the [Releases page](https://github.com/CyberDenny/sheenyfeender/releases/latest)
 
 *Note: Only the main JAR file is included in releases (sources JAR excluded for smaller download size)*
 
