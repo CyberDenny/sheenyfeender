@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "shinyfinder",
-	"version": "${version}",
+	"version": "1.0.1",
 	"name": "Shiny Finder",
 	"description": "A mod that finds shiny Pokemon in the surrounding area and alerts you when one is discovered!",
 	"authors": [
