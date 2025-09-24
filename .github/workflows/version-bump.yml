@@ -85,6 +85,11 @@ jobs:
         
         echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         
+    - name: List build artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -la build/libs/
+        
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -94,5 +99,21 @@ jobs:
         generate_release_notes: true
         draft: false
         prerelease: false
+        body: |
+          ## Changes in v${{ env.NEW_VERSION }}
+          
+          This release includes the latest changes to Shiny Finder.
+          
+          ### Installation
+          1. Download the `shinyfinder-${{ env.NEW_VERSION }}.jar` file
+          2. Place it in your mods folder
+          3. Make sure you have Fabric Loader, Fabric API, and Cobblemon installed
+          4. Launch Minecraft and enjoy!
+          
+          ### Requirements
+          - Minecraft 1.21.1
+          - Fabric Loader 0.16.14+
+          - Fabric API
+          - Cobblemon (for Pokemon detection)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
