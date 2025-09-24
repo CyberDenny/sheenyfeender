@@ -1,12 +1,10 @@
-name: Build and Release
+name: Build
 
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  release:
-    types: [ published ]
 
 jobs:
   build:
@@ -43,12 +41,3 @@ jobs:
       with:
         name: mod-jars
         path: build/libs/*.jar
-        
-    - name: Create Release
-      if: github.event_name == 'release'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: build/libs/*.jar
-        generate_release_notes: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
