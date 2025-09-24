@@ -23,5 +23,7 @@ public class ShinyFinder implements ModInitializer {
 		
 		// Commands removed - using keybinds instead for multiplayer compatibility
 		// ServerTickEvents.END_SERVER_TICK.register(ShinyFinderCore::onServerTick);
+		
+		// Test change to trigger v1.0.2 release
 	}
 }
