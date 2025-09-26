@@ -106,16 +106,17 @@ jobs:
           
           This release includes the latest changes to Shiny Finder.
           
-          ### Installation
-          1. Download the `shinyfinder-${{ env.NEW_VERSION }}.jar` file
-          2. Place it in your mods folder
-          3. Make sure you have Fabric Loader, Fabric API, and Cobblemon installed
-          4. Launch Minecraft and enjoy!
+          ### Recent Updates
+          - Enhanced UI with HUD indicator matching XRay format
+          - Fixed scanner issues with /rtp and teleportation  
+          - Improved automatic detection of world changes
+          - Simplified keybind controls
+          - Increased maximum scan radius to 2000 blocks
           
-          ### Requirements
-          - Minecraft 1.21.1
-          - Fabric Loader 0.16.14+
-          - Fabric API
-          - Cobblemon (for Pokemon detection)
+          ### Controls
+          - **F6**: Toggle Shiny Finder
+          - **F9**: Open Configuration Screen
+          
+          *For detailed changelog, see the commit history.*
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
