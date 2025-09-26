@@ -1,0 +1,26 @@
+name: CI Build & Release
+
+on:
+  push:
+    tags:
+      - v/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          cache: 'gradle'
+          distribution: 'microsoft'
+      - name: Publish & Release to Curse
+        env:
+          SAPS_TOKEN: ${{ secrets.SAPS_TOKEN }}
+          CURSE_DEPLOY_TOKEN: ${{ secrets.CURSE_DEPLOY_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build publish publishMods --stacktrace --no-daemon

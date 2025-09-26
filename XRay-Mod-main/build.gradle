@@ -1,0 +1,138 @@
+plugins {
+    id 'java-library'
+    id 'fabric-loom' version '1.10-SNAPSHOT' apply(false)
+    id 'net.neoforged.moddev' version '2.0.105' apply(false)
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = 'pro.mikey'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    version = mod_version
+    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    idea {
+        module {
+            downloadSources = true
+            downloadJavadoc = true
+        }
+    }
+
+//    jar {
+//        from(rootProject.file("LICENSE").toString()) {
+//            rename { "${it}_${project.archivesBaseName}" }
+//        }
+//    }
+}
+
+subprojects {
+    base {
+        archivesName = "advanced-xray-$project.name"
+    }
+
+    repositories {
+        maven {
+            url "https://libraries.minecraft.net"
+            content {
+                includeModule("org.lwjgl", "lwjgl-freetype")
+            }
+        }
+    }
+
+    if (project.name != "common") {
+        dependencies {
+            api project(":common")
+        }
+
+        jar {
+            from project(":common").sourceSets.main.output
+        }
+    }
+
+    def replaceProperties = [
+            minecraft_version: minecraft_version,
+            minecraft_version_range: minecraft_version_range.replace("[%base]", minecraft_version),
+            forge_version_range: forge_version_range,
+            version: version,
+    ]
+
+    processResources {
+        inputs.properties replaceProperties
+
+        filesMatching(["META-INF/neoforge.mods.toml", "fabric.mod.json", "META-INF/mods.toml"]) {
+            expand replaceProperties
+        }
+    }
+
+    publishing {
+        repositories {
+            def token = providers.environmentVariable("SAPS_TOKEN");
+            if (token.isPresent()) {
+                maven {
+                    url "https://maven.saps.dev/releases"
+                    credentials {
+                        username = "mikeymods"
+                        password = token.get()
+                    }
+                }
+            }
+        }
+    }
+}
+
+publishMods {
+    dryRun = providers.environmentVariable("CURSE_DEPLOY_TOKEN").getOrNull() == null
+    changelog = file("./CHANGELOG.md").text
+    version = "${mod_version}"
+    type = STABLE
+
+    def createOptions = (String platform, String taskName) -> {
+        publishOptions {
+            file = project.provider { project(":$platform").tasks[taskName] }.flatMap { it.archiveFile }
+            displayName = "[${platform.toUpperCase()}] Advanced XRay ${mod_version}"
+            modLoaders.add(platform.toLowerCase())
+        }
+    }
+
+    def curseForgeOptions = curseforgeOptions {
+        accessToken = providers.environmentVariable("CURSE_DEPLOY_TOKEN")
+        minecraftVersions.add("${minecraft_version}")
+        minecraftVersions.add("1.21.7")
+        javaVersions.add(JavaVersion.VERSION_21)
+    }
+
+    curseforge("curseforgeNeoforge") {
+        from(curseForgeOptions, createOptions("neoforge", "jar"))
+        projectId = "256256"
+    }
+
+    curseforge("curseforgeFabric") {
+        from(curseForgeOptions, createOptions("fabric", "remapJar"))
+        projectId = "444663"
+    }
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = "AdvancedXRay/XRay-Mod"
+        commitish = providers.environmentVariable("GITHUB_SHA").orElse("dryRun")
+        tagName = providers.environmentVariable("GITHUB_REF_NAME").orElse("dryRun")
+
+        file = project.provider { project(":neoforge").tasks.jar }.flatMap { it.archiveFile }
+        additionalFiles.from project.provider { project(":fabric").tasks.remapJar }.flatMap { it.archiveFile }
+    }
+}

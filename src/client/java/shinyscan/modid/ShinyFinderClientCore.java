@@ -19,17 +19,59 @@ public class ShinyFinderClientCore {
     private static boolean hasAutoStarted = false; // Track if we've auto-started this session
     
     private static int tickCounter = 0;
+    private static String lastWorldId = null; // Track world changes
+    private static double lastPlayerX = 0;
+    private static double lastPlayerY = 0;
+    private static double lastPlayerZ = 0;
     
     public static void onClientTick(MinecraftClient client) {
         if (client.world == null || client.player == null) return;
         
         ShinyFinderConfig config = ShinyFinderConfig.INSTANCE;
         
+        // Check if we've changed worlds/realms
+        String currentWorldId = client.world.getRegistryKey().getValue().toString();
+        if (lastWorldId == null || !lastWorldId.equals(currentWorldId)) {
+            lastWorldId = currentWorldId;
+            lastScanTimes.clear();
+            ShinyFinder.LOGGER.info("World changed to: {}, resetting scan timers", currentWorldId);
+        }
+        
+        // Check if player has moved significantly (like /rtp)
+        double currentX = client.player.getX();
+        double currentY = client.player.getY();
+        double currentZ = client.player.getZ();
+        
+        // If this is the first tick, initialize position
+        if (lastPlayerX == 0 && lastPlayerY == 0 && lastPlayerZ == 0) {
+            lastPlayerX = currentX;
+            lastPlayerY = currentY;
+            lastPlayerZ = currentZ;
+        } else {
+            // Calculate distance moved
+            double distanceMoved = Math.sqrt(
+                Math.pow(currentX - lastPlayerX, 2) + 
+                Math.pow(currentY - lastPlayerY, 2) + 
+                Math.pow(currentZ - lastPlayerZ, 2)
+            );
+            
+            // If player moved more than 100 blocks (like /rtp), reset scanner
+            if (distanceMoved > 100) {
+                lastScanTimes.clear();
+                ShinyFinder.LOGGER.info("Player teleported {} blocks, resetting scan timers", String.format("%.1f", distanceMoved));
+            }
+            
+            // Update last position
+            lastPlayerX = currentX;
+            lastPlayerY = currentY;
+            lastPlayerZ = currentZ;
+        }
+        
         // Auto-start scanner if enabled and we haven't started yet
         if (config.autoStartEnabled && !hasAutoStarted && !scannerEnabled) {
             scannerEnabled = true;
             hasAutoStarted = true;
-            client.player.sendMessage(Text.literal("§aShiny Finder auto-started! Press F6 to toggle."), false);
+            client.player.sendMessage(Text.literal("§aShiny Finder activated"), true); // true = action bar
         }
         
         tickCounter++;
@@ -150,7 +192,14 @@ public class ShinyFinderClientCore {
     }
     
     public static void setScannerEnabled(boolean enabled) {
+        boolean wasEnabled = scannerEnabled;
         scannerEnabled = enabled;
+        
+        // If we're enabling the scanner, reset scan timers to ensure immediate scanning
+        if (enabled && !wasEnabled) {
+            lastScanTimes.clear();
+            ShinyFinder.LOGGER.info("Scanner enabled, resetting scan timers for immediate scanning");
+        }
     }
     
     public static boolean isScannerEnabled() {
@@ -158,11 +207,29 @@ public class ShinyFinderClientCore {
     }
     
     public static void toggleScanner() {
+        boolean wasEnabled = scannerEnabled;
         scannerEnabled = !scannerEnabled;
+        
+        // If we're enabling the scanner, reset scan timers to ensure immediate scanning
+        if (scannerEnabled && !wasEnabled) {
+            lastScanTimes.clear();
+            ShinyFinder.LOGGER.info("Scanner toggled ON, resetting scan timers for immediate scanning");
+        }
     }
     
     public static void resetAutoStart() {
         hasAutoStarted = false;
+    }
+    
+    public static void resetScannerForNewWorld() {
+        lastScanTimes.clear();
+        lastWorldId = null;
+        ShinyFinder.LOGGER.info("Scanner reset for new world");
+    }
+    
+    public static void forceResetScanner() {
+        lastScanTimes.clear();
+        ShinyFinder.LOGGER.info("Scanner manually reset - next scan will be immediate");
     }
     
     private static net.minecraft.sound.SoundEvent getSimpleSoundEvent(String soundId) {

@@ -68,7 +68,7 @@ public class ShinyFinderConfigScreen extends Screen {
         // Scan Radius Slider
         this.scanRadiusSlider = new SliderWidget(centerX - 100, currentY, 200, 18, 
             Text.literal("Scan Radius: " + String.format("%.1f", tempScanRadius)), 
-            tempScanRadius / 500.0) {
+            tempScanRadius / 2000.0) {
             @Override
             protected void updateMessage() {
                 setMessage(Text.literal("Scan Radius: " + String.format("%.1f", tempScanRadius)));
@@ -76,7 +76,7 @@ public class ShinyFinderConfigScreen extends Screen {
             
             @Override
             protected void applyValue() {
-                tempScanRadius = this.value * 500.0;
+                tempScanRadius = this.value * 2000.0;
             }
         };
         this.addDrawableChild(scanRadiusSlider);

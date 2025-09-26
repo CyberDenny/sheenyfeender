@@ -4,7 +4,9 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
 import net.minecraft.text.Text;
 
 public class ShinyFinderClient implements ClientModInitializer {
@@ -12,6 +14,9 @@ public class ShinyFinderClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		// Register keybinds
 		ShinyFinderKeybinds.register();
+		
+		// Register HUD overlay
+		HudRenderCallback.EVENT.register((drawContext, tickDelta) -> ShinyFinderHudOverlay.renderGameOverlayEvent(drawContext));
 		
 		// Register client tick event for scanning
 		ClientTickEvents.END_CLIENT_TICK.register(ShinyFinderClientCore::onClientTick);
@@ -25,26 +30,19 @@ public class ShinyFinderClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (client.player == null) return;
 			
-			// Handle key presses
+			// Handle toggle key press
 			if (ShinyFinderKeybinds.toggleScannerKey.wasPressed()) {
 				ShinyFinderClientCore.toggleScanner();
 				boolean enabled = ShinyFinderClientCore.isScannerEnabled();
-				String message = enabled ? 
-					"§aShiny Finder enabled! You will be alerted when shiny Pokemon are nearby." :
-					"§cShiny Finder disabled.";
-				client.player.sendMessage(Text.literal(message), false);
+				// Use HUD message like XRay - try different approach
+				if (enabled) {
+					client.player.sendMessage(Text.literal("§aShiny Finder activated"), true); // true = action bar
+				} else {
+					client.player.sendMessage(Text.literal("§cShiny Finder deactivated"), true); // true = action bar
+				}
 			}
 			
-			if (ShinyFinderKeybinds.enableScannerKey.wasPressed()) {
-				ShinyFinderClientCore.setScannerEnabled(true);
-				client.player.sendMessage(Text.literal("§aShiny Finder enabled!"), false);
-			}
-			
-			if (ShinyFinderKeybinds.disableScannerKey.wasPressed()) {
-				ShinyFinderClientCore.setScannerEnabled(false);
-				client.player.sendMessage(Text.literal("§cShiny Finder disabled."), false);
-			}
-			
+			// Handle config key press
 			if (ShinyFinderKeybinds.openConfigKey.wasPressed()) {
 				client.setScreen(new ShinyFinderConfigScreen(client.currentScreen));
 			}
